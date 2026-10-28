@@ -1,0 +1,38 @@
+---
+name: Release
+
+# yamllint disable-line rule:truthy
+on:
+  release:
+    types:
+      - published
+
+env:
+  DEFAULT_PYTHON: "3.13"
+
+jobs:
+  release:
+    name: Releasing to PyPi
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install dependencies
+        run: uv sync --all-groups
+      - name: 🏗 Set package version
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          version="${version,,}"
+          version="${version#v}"
+          uv version "${version}"
+      - name: 🏗 Build package
+        run: uv build
+      - name: 🚀 Publish package to PyPi
+        uses: pypa/gh-action-pypi-publish@v1.14.3

@@ -1,0 +1,8 @@
+# serializer version: 1
+# name: test_crypto_known_answers
+  dict({
+    'mic': b'\xe6\xb6\x99\xce',
+    'session_key': b'\xa7\x84%\x14\xf75\xf4\xc6\x17\xcc\xc1W\x8bG\x96\xcb',
+    'sres': b'65\xe2\xc6',
+  })
+# ---

@@ -1,0 +1,146 @@
+---
+name: Linting
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DEFAULT_PYTHON: "3.13"
+
+jobs:
+  codespell:
+    name: codespell
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🚀 Check code for common misspellings
+        run: uv run prek run codespell --all-files
+
+  ruff:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🚀 Run ruff linter
+        run: uv run ruff check --output-format=github .
+      - name: 🚀 Run ruff formatter
+        run: uv run ruff format --check .
+
+  prek-builtin-hooks:
+    name: prek-builtin-hooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install prek
+        run: pipx install prek
+      - name: 🚀 Check for case conflicts
+        run: prek run check-case-conflict --all-files
+      - name: 🚀 Check that executables have shebangs
+        run: prek run check-executables-have-shebangs --all-files
+      - name: 🚀 Check JSON files
+        run: prek run check-json --all-files
+      - name: 🚀 Check for merge conflicts
+        run: prek run check-merge-conflict --all-files
+      - name: 🚀 Check for broken symlinks
+        run: prek run check-symlinks --all-files
+      - name: 🚀 Check TOML files
+        run: prek run check-toml --all-files
+      - name: 🚀 Check XML files
+        run: prek run check-xml --all-files
+      - name: 🚀 Check YAML files
+        run: prek run check-yaml --all-files
+      - name: 🚀 Detect Private Keys
+        run: prek run detect-private-key --all-files
+      - name: 🚀 Check End of Files
+        run: prek run end-of-file-fixer --all-files
+      - name: 🚀 Trim Trailing Whitespace
+        run: prek run trailing-whitespace --all-files
+
+  pre-commit-hooks:
+    name: pre-commit-hooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🚀 Check Python AST
+        run: uv run prek run check-ast --all-files
+      - name: 🚀 Check docstring is first
+        run: uv run prek run check-docstring-first --all-files
+
+  pylint:
+    name: pylint
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🚀 Run pylint
+        run: uv run prek run pylint --all-files
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🚀 Run yamllint
+        run: uv run yamllint .
+
+  prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+      - name: 🏗 Install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: 🏗 Install Python dependencies
+        run: uv sync --all-groups
+      - name: 🏗 Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - name: 🏗 Install NPM dependencies
+        run: npm install
+      - name: 🚀 Run prettier
+        run: uv run prek run prettier --all-files
