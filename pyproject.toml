@@ -40,7 +40,7 @@ Changelog = "https://github.com/joostlek/python-tile-ble/releases"
 dev = [
     "codespell==2.4.3",
     "covdefaults==2.3.0",
-    "coverage[toml]==7.17.0",
+    "coverage[toml]==7.17.1",
     "mypy==2.4.1",
     "prek==0.5.10",
     "pre-commit-hooks==6.0.0",
