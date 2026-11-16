@@ -46,14 +46,14 @@ async def _details(request: web.Request) -> web.Response:
     raise web.HTTPInternalServerError
 
 
-@pytest.fixture
-def tile_ids() -> list[str]:
+@pytest.fixture(name="tile_ids")
+def tile_ids_fixture() -> list[str]:
     """Return the Tile IDs the fake Tile cloud lists."""
     return ["19264d2dffdbca32", "aaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbb"]
 
 
-@pytest.fixture
-async def session(
+@pytest.fixture(name="session")
+async def session_fixture(
     monkeypatch: pytest.MonkeyPatch, tile_ids: list[str]
 ) -> AsyncIterator[ClientSession]:
     """Return a session pointed at a fake Tile cloud."""
