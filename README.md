@@ -17,7 +17,8 @@ This package talks to a Tile over Bluetooth Low Energy with [bleak][bleak]. It c
 
 - check that an auth key belongs to a Tile;
 - make a Tile ring;
-- read the Tile ID of a Tile, without an auth key.
+- read the Tile ID of a Tile, without an auth key;
+- get the auth keys of the Tiles of an account from the Tile cloud.
 
 This package is not affiliated with, endorsed by, or connected to Tile or Life360.
 
@@ -29,7 +30,7 @@ pip install tile-ble
 
 ## Usage
 
-Each Tile has its own auth key. The key is a base64 string from the Tile cloud. For example, [pytile][pytile] exposes it as `Tile.auth_key` once that change is released.
+Each Tile has its own auth key. The key is a base64 string from the Tile cloud.
 
 ```python
 import asyncio
@@ -55,6 +56,21 @@ if __name__ == "__main__":
 
 `async_authenticate()` proves that the key belongs to this Tile. It does not ring the Tile.
 
+### Get the auth keys from the Tile cloud
+
+`async_get_tiles()` logs in to the Tile cloud with the account email and password. It returns a `TileCloudTile` with `tile_id`, `name` and `auth_key` for each Tile. `auth_key` is `None` when the cloud sends no key. Tile Labels are not returned.
+
+```python
+from aiohttp import ClientSession
+
+from tile_ble import async_get_tiles
+
+async with ClientSession() as session:
+    tiles = await async_get_tiles(session, "user@example.com", "password")
+```
+
+Use `address_matches_tile_id()` to find the Bluetooth device of each Tile.
+
 Tiles advertise the `TILE_SERVICE_UUID` service. Use it to find Tiles in a scan.
 
 ### Find which Tile is which
@@ -79,11 +95,13 @@ tile_id = await async_read_tile_id(ble_device)
 
 All exceptions derive from `TileBleError`.
 
-| Exception                    | Raised when                                                          |
-| ---------------------------- | -------------------------------------------------------------------- |
-| `TileBleConnectionError`     | The Tile cannot be reached, a Bluetooth call fails, or it times out. |
-| `TileBleAuthenticationError` | The Tile rejects the auth key.                                       |
-| `TileBleError`               | The Tile returns an error, or refuses to ring.                       |
+| Exception                      | Raised when                                                          |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `TileBleConnectionError`       | The Tile cannot be reached, a Bluetooth call fails, or it times out. |
+| `TileBleAuthenticationError`   | The Tile rejects the auth key.                                       |
+| `TileBleError`                 | The Tile returns an error, or refuses to ring.                       |
+| `TileCloudAuthenticationError` | The Tile cloud rejects the email or password.                        |
+| `TileCloudError`               | A Tile cloud request fails.                                          |
 
 `TileBleDevice` raises `ValueError` when the auth key is not a 16-byte base64 value.
 
@@ -207,7 +225,6 @@ The protocol implementation is based on [node-tile][node-tile]. See
 [poetry-install]: https://python-poetry.org/docs/#installation
 [poetry]: https://python-poetry.org
 [prek]: https://prek.j178.dev/
-[pytile]: https://github.com/bachya/pytile
 [uv]: https://docs.astral.sh/uv/
 [uv-install]: https://docs.astral.sh/uv/getting-started/installation/
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-beta-yellow.svg
